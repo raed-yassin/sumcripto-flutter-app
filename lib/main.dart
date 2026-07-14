@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/layout/home_layout.dart';
 import 'package:flutter_application_1/modules/bmi/cmi_calc.dart';
 import 'package:flutter_application_1/modules/bmi/cmi_result.dart';
 import 'package:flutter_application_1/modules/counter/counter.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Login(),
+      home: HomeLayout(),
     );
   }
 }

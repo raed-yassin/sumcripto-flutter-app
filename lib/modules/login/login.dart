@@ -99,13 +99,13 @@ class _LoginState extends State<Login> {
                           Icons.lock_outline,
                           color: Colors.white,
                         ),
-                        suffixIcon: GestureDetector(
-                          onTap: () {
+                        suffixIcon: IconButton(
+                          onPressed: () {
                             setState(() {
                               isSecurePassword = !isSecurePassword;
                             });
                           },
-                          child: Icon(
+                          icon: Icon(
                             isSecurePassword
                                 ? Icons.remove_red_eye
                                 : Icons.panorama_fish_eye,
