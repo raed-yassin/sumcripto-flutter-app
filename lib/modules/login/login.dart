@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/modules/list/view_list.dart';
+import 'package:flutter_application_1/shared/components/components.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});
@@ -8,18 +10,7 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        centerTitle: true,
-        leading: Container(child: Icon(Icons.menu)),
-        title: Container(alignment: Alignment.center, child: Text("SumCripto")),
-        actions: [
-          IconButton(onPressed: onPressed, icon: Icon(Icons.search)),
-          IconButton(onPressed: onPressed, icon: Icon(Icons.notifications)),
-        ],
-      ),
+      appBar: appBare(),
       body: Container(
         color: Colors.teal,
         child: Center(
@@ -141,7 +132,9 @@ class Login extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                         vertical: 20
                       ),
-                      onPressed: onPressed, 
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> MessagesList()));
+                      }, 
                       child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

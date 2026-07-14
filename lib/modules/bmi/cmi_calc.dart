@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/cmi_result.dart';
+import 'package:flutter_application_1/modules/bmi/cmi_result.dart';
 
 class CMI extends StatefulWidget {
   const CMI({super.key});

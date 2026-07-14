@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/shared/components/components.dart';
 
 class MessagesList extends StatelessWidget {
   const MessagesList({super.key});
@@ -6,18 +7,7 @@ class MessagesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        centerTitle: true,
-        leading: Container(child: Icon(Icons.menu)),
-        title: Container(alignment: Alignment.center, child: Text("SumCripto")),
-        actions: [
-          IconButton(onPressed: onPressed, icon: Icon(Icons.search)),
-          IconButton(onPressed: onPressed, icon: Icon(Icons.notifications)),
-        ],
-      ),
+      appBar: appBare(),
       body: Container(
         color: Colors.teal,
         child: Padding(
