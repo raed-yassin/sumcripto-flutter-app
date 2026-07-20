@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/layout/home_layout.dart';
-import 'package:flutter_application_1/modules/bmi/cmi_calc.dart';
-import 'package:flutter_application_1/modules/bmi/cmi_result.dart';
 import 'package:flutter_application_1/modules/counter/counter.dart';
-import 'package:flutter_application_1/modules/login/login.dart';
-import 'package:flutter_application_1/modules/list/view_list.dart';
+import 'package:flutter_application_1/modules/counter/test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  // to use riverpod you should wrap the main app by ProviderScope
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,10 +14,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: CMI(),
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, home: Counter());
   }
 }
-

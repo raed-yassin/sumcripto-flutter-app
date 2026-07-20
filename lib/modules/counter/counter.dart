@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/providers/counter_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Counter extends StatefulWidget {
-  Counter({super.key});
+class Counter extends ConsumerStatefulWidget {
+  const Counter({super.key});
 
   @override
-  State<Counter> createState() => _CounterState();
+  ConsumerState<Counter> createState() => _CounterState();
 }
 
-class _CounterState extends State<Counter> {
-  int counter = 0;
-
+class _CounterState extends ConsumerState<Counter> {
   // in state full component the system is run sequensialy
   // 1. constructor
   // 2. initState()
@@ -17,12 +17,13 @@ class _CounterState extends State<Counter> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final counterProv = ref.watch(counterProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.teal,
@@ -45,28 +46,32 @@ class _CounterState extends State<Counter> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                MaterialButton(
-                  onPressed: (){
-                    setState(() {
-                      counter++;
-                    print(counter);
-                    });
-                  },
-                  height: 50,
-                  child: Icon(Icons.plus_one),
+                Container(
+                  color: const Color.fromARGB(255, 72, 176, 152),
+                  child: MaterialButton(
+                    onPressed: () {
+                      ref.read(counterProvider.notifier).increament();
+                    },
+                    height: 50,
+                    child: Icon(Icons.add),
+                  ),
                 ),
-                SizedBox(width: 20),
-                Text("$counter", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(width: 20),
-                MaterialButton(
-                  height: 50,
-                  onPressed: (){
-                    setState(() {
-                      counter--;
-                    print(counter);
-                    });
-                  },
-                  child: Icon(Icons.minor_crash_outlined), 
+                SizedBox(width: 40),
+                Text(
+                  "$counterProv",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                ),
+                SizedBox(width: 40),
+                Container(
+                  color: const Color.fromARGB(255, 72, 176, 152),
+                  child: MaterialButton(
+                    height: 50,
+                    onPressed: () {
+                      if (counterProv <= 0) return;
+                      ref.read(counterProvider.notifier).decreament();
+                    },
+                    child: Icon(Icons.remove),
+                  ),
                 ),
               ],
             ),
