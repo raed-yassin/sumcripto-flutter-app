@@ -1,13 +1,8 @@
-name: Demo Unlock PRD branch (after 5PM KSA)
+name: Unlock PRD branch (after 5PM KSA)
 on:
   schedule:
-    - cron: '0 14 * * *'
-  workflow_dispatch:
-    inputs:
-      simulate_failure:
-        description: 'Force this run to fail (to test notification)'
-        type: boolean
-        default: false
+    - cron: '0 14 * * *'  # 5:00 PM KSA -> unlock
+  workflow_dispatch: {}
 
 env:
   BRANCH_NAME: main   # <-- change branch name here only
@@ -42,12 +37,7 @@ jobs:
       - name: Unlock branch
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
-          SIMULATE_FAILURE: ${{ inputs.simulate_failure }}
         run: |
-          if [ "$SIMULATE_FAILURE" = "true" ]; then
-            echo "Simulating failure for testing purposes"
-            exit 1
-          fi
           gh api -X PUT repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection \
             --input - <<'EOF'
           {

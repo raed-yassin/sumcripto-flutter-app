@@ -1,19 +1,14 @@
-name: Demo Unlock PRD branch (after 5PM KSA)
+name: Lock PRD branch (9AM-5PM KSA)
 on:
   schedule:
-    - cron: '0 14 * * *'
-  workflow_dispatch:
-    inputs:
-      simulate_failure:
-        description: 'Force this run to fail (to test notification)'
-        type: boolean
-        default: false
+    - cron: '0 6 * * *'   # 9:00 AM KSA -> lock
+  workflow_dispatch: {}
 
 env:
   BRANCH_NAME: main   # <-- change branch name here only
 
 jobs:
-  unlock:
+  lock:
     runs-on: ubuntu-latest
     steps:
       - name: Debug token presence
@@ -39,15 +34,10 @@ jobs:
         run: |
           gh api repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection
 
-      - name: Unlock branch
+      - name: Lock branch
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
-          SIMULATE_FAILURE: ${{ inputs.simulate_failure }}
         run: |
-          if [ "$SIMULATE_FAILURE" = "true" ]; then
-            echo "Simulating failure for testing purposes"
-            exit 1
-          fi
           gh api -X PUT repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection \
             --input - <<'EOF'
           {
@@ -55,7 +45,7 @@ jobs:
             "enforce_admins": null,
             "required_pull_request_reviews": null,
             "restrictions": null,
-            "lock_branch": false
+            "lock_branch": true
           }
           EOF
 
@@ -68,6 +58,6 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `⚠️ PRD branch UNLOCK workflow failed - ${new Date().toISOString()}`,
-              body: `A step failed in the 5PM KSA unlock workflow for '${{ env.BRANCH_NAME }}'.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease check the run logs and branch protection manually — the branch may still be locked.`
+              title: `⚠️ PRD branch LOCK workflow failed - ${new Date().toISOString()}`,
+              body: `A step failed in the 9AM KSA lock workflow for '${{ env.BRANCH_NAME }}'.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease check the run logs and branch protection manually.`
             })
