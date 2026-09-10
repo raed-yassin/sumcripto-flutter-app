@@ -8,12 +8,42 @@ jobs:
   unlock:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug token presence
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "GH_TOKEN is EMPTY"
+          else
+            echo "GH_TOKEN is set, length: ${#GH_TOKEN}"
+          fi
+
+      - name: Check token scope
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+        run: |
+          gh api user --silent && echo "Token authenticates OK"
+          gh api repos/${{ github.repository }} --silent && echo "Token can read this repo OK"
+
+      - name: Check branch protection exists
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/branches/main/protection \
+            && echo "Protection exists" \
+            || echo "Protection MISSING — this is likely your 404"
+
       - name: Unlock branch
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
         run: |
           gh api -X PUT repos/${{ github.repository }}/branches/main/protection \
-            -f lock_branch=false \
-            --silent
-
-
+            --input - <<'EOF'
+          {
+            "required_status_checks": null,
+            "enforce_admins": null,
+            "required_pull_request_reviews": null,
+            "restrictions": null,
+            "lock_branch": false
+          }
+          EOF

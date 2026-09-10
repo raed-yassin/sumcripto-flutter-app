@@ -38,5 +38,12 @@ jobs:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
         run: |
           gh api -X PUT repos/${{ github.repository }}/branches/main/protection \
-            -f lock_branch=true \
-            --silent
+            --input - <<'EOF'
+          {
+            "required_status_checks": null,
+            "enforce_admins": null,
+            "required_pull_request_reviews": null,
+            "restrictions": null,
+            "lock_branch": true
+          }
+          EOF
