@@ -1,47 +1,61 @@
 name: Lock PRD branch (9AM-5PM KSA)
 on:
   schedule:
-    - cron: '0 6 * * *'   # 9:00 AM KSA -> lock
-  workflow_dispatch: {}
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: 'Force this run to fail (to test notification)'
+        type: boolean
+        default: false
 
 env:
-  BRANCH_NAME: main   # <-- change branch name here only
+  BRANCH_NAME: main
 
 jobs:
   lock:
     runs-on: ubuntu-latest
     steps:
       - name: Debug token presence
+        id: step1
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
             echo "GH_TOKEN is EMPTY"
-          else
-            echo "GH_TOKEN is set, length: ${#GH_TOKEN}"
+            exit 1
           fi
+          echo "GH_TOKEN is set, length: ${#GH_TOKEN}"
 
       - name: Check token scope
-        env:
-          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
-        run: |
-          gh api user --silent && echo "Token authenticates OK"
-          gh api repos/${{ github.repository }} --silent && echo "Token can read this repo OK"
-
-      - name: Check branch protection exists
-        env:
-          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
-        run: |
-          gh api repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection \
-            && echo "Protection exists" \
-            || echo "Protection MISSING — this is likely your 404"
-
-      - name: Lock branch
-        id: lock_step
+        id: step2
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
         run: |
+          gh api user --silent
+          gh api repos/${{ github.repository }} --silent
+
+      - name: Check branch protection exists
+        id: step3
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection
+
+      - name: Lock branch
+        id: step4
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+          SIMULATE_FAILURE: ${{ inputs.simulate_failure }}
+        run: |
+          if [ "$SIMULATE_FAILURE" = "true" ]; then
+            echo "Simulating failure for testing purposes"
+            exit 1
+          fi
           gh api -X PUT repos/${{ github.repository }}/branches/${{ env.BRANCH_NAME }}/protection \
             --input - <<'EOF'
           {
@@ -53,8 +67,8 @@ jobs:
           }
           EOF
 
-      - name: Notify all watchers on failure
-        if: steps.lock_step.outcome == 'failure'
+      - name: Notify all watchers if any step failed
+        if: steps.step1.outcome == 'failure' || steps.step2.outcome == 'failure' || steps.step3.outcome == 'failure' || steps.step4.outcome == 'failure'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -62,10 +76,10 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `⚠️ PRD branch LOCK failed - ${new Date().toISOString()}`,
-              body: `The scheduled 9AM KSA lock workflow failed to lock '${{ env.BRANCH_NAME }}'.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease check branch protection manually.`
+              title: `⚠️ PRD branch LOCK workflow had an error - ${new Date().toISOString()}`,
+              body: `One or more steps failed in the 9AM KSA lock workflow for '${{ env.BRANCH_NAME }}'.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease check the run logs and branch protection manually.`
             })
 
-      - name: Fail job if lock failed
-        if: steps.lock_step.outcome == 'failure'
+      - name: Mark job as failed if any step failed
+        if: steps.step1.outcome == 'failure' || steps.step2.outcome == 'failure' || steps.step3.outcome == 'failure' || steps.step4.outcome == 'failure'
         run: exit 1
