@@ -1,0 +1,17 @@
+name: Unlock branch (after 5PM KSA)
+on:
+  schedule:
+    - cron: '0 14 * * *'  # 5:00 PM KSA -> unlock
+  workflow_dispatch: {}
+
+jobs:
+  unlock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unlock branch
+        env:
+          GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
+        run: |
+          gh api -X PUT repos/${{ github.repository }}/branches/try-block-pushing-9-5/protection \
+            -f lock_branch=false \
+            --silent
