@@ -37,6 +37,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}
         run: |
-          gh api -X PUT repos/${{ github.repository }}/branches/try-block-pushing-9-5/protection \
+          gh api -X PUT repos/${{ github.repository }}/branches/main/protection \
             -f lock_branch=true \
             --silent
