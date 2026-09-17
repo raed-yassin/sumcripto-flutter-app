@@ -1,16 +1,22 @@
 name: Lock PRD branch (9AM-5PM KSA)
 on:
   schedule:
-    - cron: '0 6 * * *'   # 9:00 AM KSA -> lock
+    - cron: '36 5 * * *'   # 8:36 AM KSA
   workflow_dispatch: {}
 
 env:
   BRANCH_NAME: main   # <-- change branch name here only
+  TZ: Asia/Riyadh
 
 jobs:
   lock:
     runs-on: ubuntu-latest
     steps:
+      - name: Show actual run time (KSA)
+        run: |
+          echo "This job started at (KSA time): $(TZ=Asia/Riyadh date)"
+          echo "This job started at (UTC): $(date -u)"
+
       - name: Debug token presence
         env:
           GH_TOKEN: ${{ secrets.BRANCH_LOCK_TOKEN }}

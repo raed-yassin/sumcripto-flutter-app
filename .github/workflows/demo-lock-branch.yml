@@ -1,7 +1,7 @@
 name: Demo Lock PRD branch (9AM-5PM KSA)
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '36 5 * * *'   # 8:36 AM KSA
   workflow_dispatch:
     inputs:
       simulate_failure:
